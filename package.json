@@ -1,0 +1,27 @@
+{
+  "name": "object-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/longlh/object-node.git"
+  },
+  "keywords": [
+    "object",
+    "utilities"
+  ],
+  "author":  {
+    "name": "Luc Hoang Long",
+    "email": "d@dapps.me"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/longlh/object-node/issues"
+  },
+  "homepage": "https://github.com/longlh/object-node#readme",
+  "dependencies": {
+    "omit-empty": "0.3.4",
+    "underscore": "1.8.3"
+  }
+}
