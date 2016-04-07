@@ -2,6 +2,7 @@
 
 var _ = require('underscore');
 var omitEmpty = require('omit-empty');
+var wildstring = require('wildstring');
 
 var ObjectNode = module.exports = function(parentNode, nodeName) {
 	this._parentNode = parentNode;
@@ -36,7 +37,9 @@ proto.toObject = function(options) {
 				child.pathOf() : this.pathOf(key);
 
 		if (options && options.check) {
-			var existed = options.check[path];
+			var existed = _.find(options.check, function(pattern) {
+				return wildstring.match(pattern, path);
+			});
 
 			if (options.mode === 'pick') {
 				ignore = !existed;
