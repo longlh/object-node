@@ -69,14 +69,12 @@ proto.get = function(path, createIfNull) {
 	var child = this[firstFrag];
 
 	if (frags.length === 0) {
-		if (!createIfNull) {
-			return child;
-		} else {
+		if (createIfNull && !child) {
 			child = new ObjectNode(this, firstFrag);
 			this.set(firstFrag, child);
-
-			return child;
 		}
+
+		return child;
 	}
 
 	if (!child) {
@@ -86,6 +84,8 @@ proto.get = function(path, createIfNull) {
 
 		child = new ObjectNode(this, firstFrag);
 		this.set(firstFrag, child);
+
+		return child;
 	}
 
 	return child.get(frags.join('.'), createIfNull);
