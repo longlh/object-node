@@ -84,8 +84,6 @@ proto.get = function(path, createIfNull) {
 
 		child = new ObjectNode(this, firstFrag);
 		this.set(firstFrag, child);
-
-		return child;
 	}
 
 	return child.get(frags.join('.'), createIfNull);
