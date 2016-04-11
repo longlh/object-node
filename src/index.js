@@ -4,7 +4,8 @@ var _ = require('underscore');
 var omitEmpty = require('omit-empty');
 var wildstring = require('wildstring');
 
-var ObjectNode = module.exports = function(parentNode, nodeName) {
+var ObjectNode = module.exports = function(parentNode, nodeName, sep) {
+	this._sep = sep || this._sep;
 	this._parentNode = parentNode;
 	this._nodeName = nodeName;
 	this._path = [];
@@ -38,7 +39,11 @@ proto.toObject = function(options) {
 
 		if (options && options.check) {
 			var existed = _.find(options.check, function(pattern) {
-				return wildstring.match(pattern, path);
+				try {
+					return wildstring.match(pattern, path);
+				} catch (e) {
+					return false;
+				}
 			});
 
 			if (options.mode === 'pick') {
@@ -62,7 +67,7 @@ proto.get = function(path, createIfNull) {
 		return null;
 	}
 
-	var frags = path.split('.');
+	var frags = path.split(this._sep);
 
 	var firstFrag = frags.shift();
 
@@ -70,7 +75,7 @@ proto.get = function(path, createIfNull) {
 
 	if (frags.length === 0) {
 		if (createIfNull && !child) {
-			child = new ObjectNode(this, firstFrag);
+			child = new ObjectNode(this, firstFrag, this._sep);
 			this.set(firstFrag, child);
 		}
 
@@ -82,11 +87,11 @@ proto.get = function(path, createIfNull) {
 			return null;
 		}
 
-		child = new ObjectNode(this, firstFrag);
+		child = new ObjectNode(this, firstFrag, this._sep);
 		this.set(firstFrag, child);
 	}
 
-	return child.get(frags.join('.'), createIfNull);
+	return child.get(frags.join(this._sep), createIfNull);
 };
 
 proto.set = function(path, value) {
@@ -94,7 +99,7 @@ proto.set = function(path, value) {
 		return null;
 	}
 
-	var frags = path.split('.');
+	var frags = path.split(this._sep);
 	var firstFrag = frags.shift();
 
 	if (!firstFrag) {
@@ -110,23 +115,23 @@ proto.set = function(path, value) {
 	var child = this[firstFrag];
 
 	if (!(child instanceof ObjectNode)) {
-		child = this[firstFrag] = new ObjectNode(this, firstFrag);
+		child = this[firstFrag] = new ObjectNode(this, firstFrag, this._sep);
 	}
 
-	child.set(frags.join('.'), value);
+	child.set(frags.join(this._sep), value);
 };
 
 proto.pathOf = function(key, asArray) {
 	if (!key) {
-		return asArray ? this._path : this._path.join('.');
+		return asArray ? this._path : this._path.join(this._sep);
 	}
 
-	var frags = key.split('.');
+	var frags = key.split(this._sep);
 
 	var lastFrag = frags.pop();
 
 	if (!lastFrag) {
-		return asArray ? this._path : this._path.join('.');
+		return asArray ? this._path : this._path.join(this._sep);
 	}
 
 	if (frags.length === 0) {
@@ -138,10 +143,10 @@ proto.pathOf = function(key, asArray) {
 		arr.push.apply(arr, this._path);
 		arr.push(lastFrag);
 
-		return asArray ? arr : arr.join('.');
+		return asArray ? arr : arr.join(this._sep);
 	}
 
-	var child = this.get(frags.join('.'));
+	var child = this.get(frags.join(this._sep));
 
 	return child ? child.pathOf(lastFrag, asArray) : null;
 };
@@ -158,7 +163,7 @@ proto.extend = function(plainObject, path) {
 			var child = this.get(key);
 
 			if (!(child instanceof ObjectNode)) {
-				child = new ObjectNode(this, key);
+				child = new ObjectNode(this, key, this._sep);
 				this.set(key, child);
 			}
 
