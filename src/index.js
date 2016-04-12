@@ -113,10 +113,10 @@ proto.set = function(path, value) {
 		return;
 	}
 
-	var child = this[firstFrag];
+	var child = this._properties[firstFrag];
 
 	if (!(child instanceof ObjectNode)) {
-		child = this[firstFrag] = new ObjectNode(this, firstFrag, this._sep);
+		child = this._properties[firstFrag] = new ObjectNode(this, firstFrag, this._sep);
 	}
 
 	child.set(frags.join(this._sep), value);
