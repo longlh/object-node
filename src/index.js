@@ -5,10 +5,11 @@ var omitEmpty = require('omit-empty');
 var wildstring = require('wildstring');
 
 var ObjectNode = module.exports = function(parentNode, nodeName, sep) {
-	this._sep = sep || this._sep;
+	this._sep = sep || '.';
 	this._parentNode = parentNode;
 	this._nodeName = nodeName;
 	this._path = [];
+	this._properties = {};
 
 	if (nodeName) {
 		this._path.push(nodeName);
@@ -22,15 +23,15 @@ var ObjectNode = module.exports = function(parentNode, nodeName, sep) {
 var proto = ObjectNode.prototype;
 
 proto.toObject = function(options) {
-	var keys = _.keys(this);
+	var keys = _.keys(this._properties);
 
 	var plainObject = {};
 
 	_.forEach(keys, function(key) {
 		// skip private properties
-		if (key.indexOf('_') === 0) {
-			return;
-		}
+		// if (key.indexOf('_') === 0) {
+		// 	return;
+		// }
 
 		var child = this.get(key);
 		var ignore = false;
@@ -71,7 +72,7 @@ proto.get = function(path, createIfNull) {
 
 	var firstFrag = frags.shift();
 
-	var child = this[firstFrag];
+	var child = this._properties[firstFrag];
 
 	if (frags.length === 0) {
 		if (createIfNull && !child) {
@@ -107,7 +108,7 @@ proto.set = function(path, value) {
 	}
 
 	if (frags.length === 0) {
-		this[firstFrag] = value;
+		this._properties[firstFrag] = value;
 
 		return;
 	}
@@ -135,7 +136,7 @@ proto.pathOf = function(key, asArray) {
 	}
 
 	if (frags.length === 0) {
-		if (typeof this[lastFrag] === 'undefined') {
+		if (typeof this._properties[lastFrag] === 'undefined' || this._properties[lastFrag] === null) {
 			return null;
 		}
 
