@@ -60,7 +60,7 @@ proto.toObject = function(options) {
 				(ignore ? undefined : child);
 	}.bind(this));
 
-	return this._parentNode || !options.omitEmpty ?
+	return this._parentNode && !options.omitEmpty ?
 			plainObject : omitEmpty(plainObject);
 };
 
