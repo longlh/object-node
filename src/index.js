@@ -23,8 +23,9 @@ var ObjectNode = module.exports = function(parentNode, nodeName, sep) {
 var proto = ObjectNode.prototype;
 
 proto.toObject = function(options) {
-	var keys = _.keys(this._properties);
+	options = options || {};
 
+	var keys = _.keys(this._properties);
 	var plainObject = {};
 
 	_.forEach(keys, function(key) {
@@ -38,7 +39,7 @@ proto.toObject = function(options) {
 		var path = child instanceof ObjectNode ?
 				child.pathOf() : this.pathOf(key);
 
-		if (options && options.check) {
+		if (options.check) {
 			var existed = _.find(options.check, function(pattern) {
 				try {
 					return wildstring.match(pattern, path);
@@ -59,7 +60,7 @@ proto.toObject = function(options) {
 				(ignore ? undefined : child);
 	}.bind(this));
 
-	return this._parentNode ?
+	return this._parentNode || !options.omitEmpty ?
 			plainObject : omitEmpty(plainObject);
 };
 
